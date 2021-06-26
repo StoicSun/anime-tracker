@@ -1,0 +1,2 @@
+- Start work on frontend when dpg 0.7 aka 1.0 releases which should take ~1-2 weeks.
+- give warning when importing csv to db:- csv should have same format as db table and any existing table will be deleted

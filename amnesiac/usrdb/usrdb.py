@@ -4,24 +4,25 @@ import csv
 
 tdate = datetime.today().strftime("%d-%m-%Y")
 
-con = sqlite3.connect('watchlist.db')
-
-cur = con.cursor()
+con = sqlite3.connect('watchlist.db', check_same_thread=False)
 
 
 def createtable():
+    cur = con.cursor()
     cur.execute('''CREATE TABLE animes 
-    (id INTEGER PRIMARY KEY, date text, name text NOT NULL UNIQUE, ep int, wstate BOOLEAN NOT NULL CHECK (wstate IN (0, 1)), online BOOLEAN NOT NULL CHECK (online IN (0, 1)));''')
+    (id INTEGER PRIMARY KEY, name text NOT NULL UNIQUE, ep int, wstate BOOLEAN NOT NULL CHECK (wstate IN (0, 1)), date text, online BOOLEAN NOT NULL CHECK (online IN (0, 1)));''')
     con.commit()
 
 
-def addrow(name, date):
+def addrow(name):
+    cur = con.cursor()
     cur.execute(
         "INSERT INTO animes (date, name, ep, wstate, online) VALUES (?, ?, 0, 0, 1);", (tdate, name))
     con.commit()
 
 
 def updaterow(target, data):
+    cur = con.cursor()
     if target == 'ep':
         cur.execute("UPDATE animes SET ep=:var;", {'var': data})
     else:
@@ -30,6 +31,7 @@ def updaterow(target, data):
 
 
 def returnrows():
+    cur = con.cursor()
     data = cur.execute("SELECT * FROM animes;")
     return data
 
@@ -42,6 +44,7 @@ def exportcsv():
 
 
 def importcsv():
+    cur = con.cursor()
     with open('exportlist.csv', 'r', newline='') as f:
         reader = csv.DictReader(f)
         to_db = [(i['id'], i['date'], i['name'], i['ep'], i['wstate'], i['online']) for i in reader]
@@ -55,12 +58,10 @@ def importcsv():
         con.commit()
 
 # createtable()
-# addrow('fire force',tdate)
+# addrow('fire force')
 # con.execute("DELETE FROM animes WHERE name='fire force'")
 # updaterow('ep',30)
 # updaterow('state',0)
 # exportcsv()
 # importcsv()
-# returnrows()
-
-con.close()
+# print([row for row in returnrows()])

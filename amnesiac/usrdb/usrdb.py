@@ -21,12 +21,12 @@ def addrow(name):
     con.commit()
 
 
-def updaterow(target, data):
+def updaterow(operation, data, name):
     cur = con.cursor()
-    if target == 'ep':
-        cur.execute("UPDATE animes SET ep=:var;", {'var': data})
+    if operation == 'ep':
+        cur.execute("UPDATE animes SET ep=:var WHERE name=:aniname;", {'var': data, 'aniname': name})
     else:
-        cur.execute("UPDATE animes SET wstate=:var;", {'var': data})
+        cur.execute("UPDATE animes SET wstate=:var WHERE name=:aniname;", {'var': data, 'aniname': name})
     con.commit()
 
 
@@ -60,7 +60,7 @@ def importcsv():
 # createtable()
 # addrow('fire force')
 # con.execute("DELETE FROM animes WHERE name='fire force'")
-# updaterow('ep',30)
+# updaterow('ep',7,"No Gun's Life S1")
 # updaterow('state',0)
 # exportcsv()
 # importcsv()

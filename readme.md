@@ -12,4 +12,9 @@
 - [ ] 3 states:- watching, finished, re-watching
 - [ ] Whenever internet is available fetch poster for anime that was added in offline mode
 - [ ] Give tooltip when hovering over coloumns
-- [ ] Show int input when usr clicks on ep
+- [ ] Start a getting started popup when the program is opened for the first time, which could consist of a short video explaining all the features or a guided tour through the app whichever is easier
+- [x] Show int input when usr clicks on ep row
+
+### 28 July session
+- [x] Reflects newly added anime
+- [ ] Change value of the ep no. whenever user enters a new value 

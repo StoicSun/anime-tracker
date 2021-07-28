@@ -2,18 +2,63 @@ import dearpygui.dearpygui as dpg
 from usrdb import usrdb 
 
 animes = [row for row in usrdb.returnrows()]
-
+start_len = len(animes)
 
 # Dummy function
 def print_me(sender):
     print(f"Menu Item: {sender}")
 
 
+# Event handler for changing episode number
+def change_ep(sender, app_data, user_data):
+    dpg.configure_item(user_data[1], show=True)
+    dpg.configure_item(user_data[0], show=False)
+
+
 # Function to add new anime to db
 def addtodb(sender, app_data, user_data):
+    global animes
     usrdb.addrow(user_data)
-    # Close the connection when done writing to db
-    usrdb.con.close()
+    # Updating previously fetched anime list
+    animes = [row for row in usrdb.returnrows()]
+    # Deleting previous table and creating a new one with the current list
+    if len(animes) > start_len:
+        dpg.delete_item(ani_table)
+        drawtable()
+
+
+# Function draw table onto main window
+def drawtable():
+    # Data table
+    global ani_table
+    with dpg.table(header_row=True, resizable=True, policy=dpg.mvTable_SizingStretchProp,
+                   row_background=True, borders_innerV=True, borders_outerV=True, borders_innerH=True, borders_outerH=True, parent=pw) as ani_table:
+        dpg.add_table_column(label="Id", width_fixed=True)
+        dpg.add_table_column(
+            label="Name", width_stretch=True, init_width_or_weight=0.0)
+        dpg.add_table_column(label="Ep", width_stretch=True,
+                             init_width_or_weight=0.32, default_sort=True)
+        dpg.add_table_column(label="State", width_fixed=True)
+        dpg.add_table_column(label="Date", width_fixed=True)
+        for row in animes:
+            dpg.add_text(row[0]) # Id
+            dpg.add_table_next_column() 
+            dpg.add_text(row[1]) # Name
+            dpg.add_table_next_column()
+            # Passing the episode no. as default value
+            ep_input = dpg.add_input_int(label='', default_value=row[2], max_value=999999, show=False) # Hidding the ep input box before click
+            ep = dpg.add_text(row[2]) # Ep
+            dpg.add_clicked_handler(ep, user_data=(ep, ep_input), callback=change_ep) # Passing ep table row to mouse handler callback
+            dpg.add_table_next_column()
+            if row[3] == 0: # Watching status
+                dpg.add_text("Watching")
+            elif row[3] == 1:
+                dpg.add_text("Completed")
+            else:
+                dpg.add_text("Rewatching")          
+            dpg.add_table_next_column()
+            dpg.add_text(row[4]) # Date added
+            dpg.add_table_next_column()
 
 
 with dpg.font_registry():
@@ -56,33 +101,7 @@ with dpg.window(label="Amnesia V-0.1.0") as pw:
     dpg.add_clicked_handler(submitbtn, callback=addtodb,
                             user_data=lambda: dpg.get_value(aname))
 
-    # Data table
-    with dpg.table(header_row=True, resizable=True, policy=dpg.mvTable_SizingStretchProp,
-                   row_background=True, borders_innerV=True, borders_outerV=True, borders_innerH=True, borders_outerH=True):
-        dpg.add_table_column(label="Id", width_fixed=True)
-        dpg.add_table_column(
-            label="Name", width_stretch=True, init_width_or_weight=0.0)
-        dpg.add_table_column(label="Ep", width_stretch=True,
-                             init_width_or_weight=0.2, default_sort=True)
-        dpg.add_table_column(label="State", width_fixed=True)
-        dpg.add_table_column(label="Date", width_fixed=True)
-        for row in animes:
-            dpg.add_text(row[0])
-            dpg.add_table_next_column()
-            dpg.add_text(row[1])
-            dpg.add_table_next_column()
-            dpg.add_input_int(label='', max_value=999999, show=False) # Hidding the ep input box before click
-            dpg.add_text(row[2])
-            dpg.add_table_next_column()
-            if row[3] == 0:
-                dpg.add_text("Watching")
-            elif row[3] == 1:
-                dpg.add_text("Completed")
-            else:
-                dpg.add_text("Rewatching")          
-            dpg.add_table_next_column()
-            dpg.add_text(row[4])
-            dpg.add_table_next_column()        
+    drawtable()
 
 
 with dpg.theme() as theme_id:

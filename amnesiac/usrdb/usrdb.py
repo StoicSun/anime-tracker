@@ -30,6 +30,13 @@ def updaterow(operation, data, name):
     con.commit()
 
 
+def delrow(name):
+    cur = con.cursor()
+    cur.execute(
+        "DELETE FROM animes WHERE name=:aniname;", {"aniname": name})
+    con.commit()
+
+
 def returnrows():
     cur = con.cursor()
     data = cur.execute("SELECT * FROM animes;")
@@ -59,7 +66,7 @@ def importcsv():
 
 # createtable()
 # addrow('fire force')
-# con.execute("DELETE FROM animes WHERE name='fire force'")
+# delrow("test")
 # updaterow('ep',7,"No Gun's Life S1")
 # updaterow('state',0)
 # exportcsv()

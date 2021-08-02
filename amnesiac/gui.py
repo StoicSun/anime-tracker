@@ -11,58 +11,84 @@ def print_me(sender):
 
 # Event handler for changing episode number
 def change_ep(sender, app_data, user_data):
-    dpg.configure_item(user_data[1], show=True)
-    dpg.configure_item(user_data[0], show=False)
+    dpg.configure_item(user_data[1], show=True) # Show ep int input
+    dpg.configure_item(user_data[0], show=False) # Hide fetched ep
 
 
 # Function to add new anime to db
 def addtodb(sender, app_data, user_data):
-    global animes
-    usrdb.addrow(user_data)
+    global animes, start_len
+    anime_name = dpg.get_value(user_data) # Getting the value from the input box
+    usrdb.addrow(anime_name)
     # Updating previously fetched anime list
     animes = [row for row in usrdb.returnrows()]
     # Deleting previous table and creating a new one with the current list
     if len(animes) > start_len:
         dpg.delete_item(ani_table)
         drawtable()
+        start_len = len(animes)
 
+
+def del_frm_db(sender, app_data, user_data): # almost same as the add handler
+    global animes, start_len    
+    usrdb.delrow(user_data)
+    animes = [row for row in usrdb.returnrows()]
+    if len(animes) < start_len: 
+        dpg.delete_item(ani_table)
+        drawtable()
+        start_len = len(animes)
 
 # Function draw table onto main window
 def drawtable():
     # Data table
     global ani_table
     with dpg.table(header_row=True, resizable=True, policy=dpg.mvTable_SizingStretchProp,
-                   row_background=True, borders_innerV=True, borders_outerV=True, borders_innerH=True, borders_outerH=True, parent=pw) as ani_table:
+                   row_background=True, borders_innerV=True, borders_outerV=True, borders_innerH=True, borders_outerH=True, scrollY=True, parent=pw) as ani_table:
         dpg.add_table_column(label="Id", width_fixed=True)
         dpg.add_table_column(
             label="Name", width_stretch=True, init_width_or_weight=0.0)
         dpg.add_table_column(label="Ep", width_stretch=True,
                              init_width_or_weight=0.32, default_sort=True)
-        dpg.add_table_column(label="State", width_fixed=True)
+        dpg.add_table_column(label="State", init_width_or_weight=0.26, width_stretch=True)
         dpg.add_table_column(label="Date", width_fixed=True)
+        dpg.add_table_column(width_fixed=True)
         for row in animes:
-            dpg.add_text(row[0]) # Id
+            # Id
+            dpg.add_text(row[0]) 
             dpg.add_table_next_column() 
-            dpg.add_text(row[1]) # Name
+            
+            # Name
+            dpg.add_text(row[1]) 
             dpg.add_table_next_column()
+            
+            # Ep
             # Passing the episode no. as default value
-            ep_input = dpg.add_input_int(label='', default_value=row[2], max_value=999999, show=False) # Hidding the ep input box before click
-            ep = dpg.add_text(row[2]) # Ep
+            ep_input = dpg.add_input_int(default_value=row[2], max_value=999999, show=False) # Hidding the ep input box before click
+            ep = dpg.add_text(row[2]) 
             dpg.add_clicked_handler(ep, user_data=(ep, ep_input), callback=change_ep) # Passing ep table row to mouse handler callback
             dpg.add_table_next_column()
-            if row[3] == 0: # Watching status
+
+            # Watching status
+            if row[3] == 0: 
                 dpg.add_text("Watching")
             elif row[3] == 1:
                 dpg.add_text("Completed")
             else:
                 dpg.add_text("Rewatching")          
             dpg.add_table_next_column()
-            dpg.add_text(row[4]) # Date added
+            
+            # Date added
+            dpg.add_text(row[4]) 
+            dpg.add_table_next_column()
+            
+            # Delete Button  
+            del_btn = dpg.add_button(label='X')
+            dpg.add_clicked_handler(del_btn, callback=del_frm_db, user_data=row[1])
             dpg.add_table_next_column()
 
-
 with dpg.font_registry():
-    dpg.add_font("amnesiac/font/OpenSans-Regular.ttf", 20, default_font=True)
+    with dpg.font("amnesiac/font/JetBrainsMono-VariableFont_wght.ttf", 21, default_font=True):
+        dpg.add_font_range_hint(dpg.mvFontRangeHint_Japanese)
     secondary_font = dpg.add_font("amnesiac/font/Gomme Sans W04 Regular.ttf", 19)
 
 # Primary window
@@ -92,14 +118,13 @@ with dpg.window(label="Amnesia V-0.1.0") as pw:
     dpg.set_item_font(mb, secondary_font)
 
     # Input row
-    aname = dpg.add_input_text(hint="Anime's name", label='', width=300)
+    aname = dpg.add_input_text(hint="Anime's name", width=300)
     dpg.add_same_line()
     adate = dpg.add_date_picker(label="Date", default_value={
                                 'month day': 2, 'year': 20, 'month': 1}, show=False)
     dpg.add_same_line()
     submitbtn = dpg.add_button(label=" Add ")
-    dpg.add_clicked_handler(submitbtn, callback=addtodb,
-                            user_data=lambda: dpg.get_value(aname))
+    dpg.add_clicked_handler(submitbtn, callback=addtodb, user_data=aname)
 
     drawtable()
 

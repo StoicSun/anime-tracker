@@ -9,12 +9,15 @@
 - [ ] give warning when importing csv to db;  csv should have same format as db table and any existing table will be deleted
 - [ ] When no internet is available, ask user to set no. of episodes manually
 - [ ] Mark anime as completed when last ep is reached
-- [ ] 3 states:- watching, finished, re-watching
+- [ ] 4 states:- watching, finished, re-watching, to-watch
 - [ ] Whenever internet is available fetch poster for anime that was added in offline mode
 - [ ] Give tooltip when hovering over coloumns
 - [ ] Start a getting started popup when the program is opened for the first time, which could consist of a short video explaining all the features or a guided tour through the app whichever is easier
 - [x] Show int input when usr clicks on ep row
+- [ ] Maybe provide noto sans as an alternative font if japanese characters are needed
 
 ### 28 July session
 - [x] Reflects newly added anime
 - [ ] Change value of the ep no. whenever user enters a new value 
+- [x] Add a delete button coloumn in the table (🗑 or ❌)
+- [ ] Fix the ids getting out of order (db)
